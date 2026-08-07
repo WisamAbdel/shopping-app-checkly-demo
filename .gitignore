@@ -53,6 +53,9 @@ composer.lock
 # Otel Demo specific
 docker-compose.override.yml
 
+# Local secrets (put local-only values in .env.override instead)
+.env
+
 src/frontend/cypress/videos
 src/frontend/cypress/screenshots
 src/shipping/target/
