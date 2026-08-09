@@ -15,19 +15,14 @@
 #   traces:  otlp_grpc/jaeger, debug, span_metrics
 #   metrics: otlp_http/prometheus, debug
 #   logs:    opensearch, debug
-#
-# Example:
-#
-# exporters:
-#   otlp_grpc/mybackend:
-#     endpoint: https://ingest.mybackend.com
-#
-# service:
-#   pipelines:
-#     traces:
-#       exporters: [otlp_grpc/jaeger, debug, span_metrics, otlp_grpc/mybackend]  # repeat upstream exporters
-#     metrics:
-#       receivers: [docker_stats, http_check/frontend-proxy, host_metrics, nginx, otlp, redis, span_metrics]
-#       exporters: [otlp_http/prometheus, debug, otlp_grpc/mybackend]           # repeat upstream exporters
-#     logs:
-#       exporters: [opensearch, debug, otlp_grpc/mybackend]                     # repeat upstream exporters
+
+exporters:
+  otlphttp/checkly:
+    endpoint: https://otel.eu-west-1.checklyhq.com
+    headers:
+      authorization: ${env:CHECKLY_OTEL_API_KEY}
+
+service:
+  pipelines:
+    traces:
+      exporters: [otlp_grpc/jaeger, debug, span_metrics, otlphttp/checkly]  # repeat upstream exporters

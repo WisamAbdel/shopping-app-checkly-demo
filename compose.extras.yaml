@@ -24,3 +24,8 @@
 #         condition: service_started
 #
 # Then add your exporter config to src/otel-collector/otelcol-config-extras.yml.
+
+services:
+  otel-collector:
+    environment:
+      - CHECKLY_OTEL_API_KEY

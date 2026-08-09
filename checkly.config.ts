@@ -19,22 +19,20 @@ const config = defineConfig({
     /** The Checkly Runtime identifier, determining npm packages and the Node.js version available at runtime.
      * See https://www.checklyhq.com/docs/cli/npm-packages/
      */
-    runtimeId: '2025.04',
+    runtimeId: '2026.04',
     /* A glob pattern that matches the Checks inside your repo, see https://www.checklyhq.com/docs/constructs/including-checks/#checks-checkmatch */
     checkMatch: '**/__checks__/**/*.check.ts',
     /* Global configuration option for Browser and Multistep checks. See https://www.checklyhq.com/docs/browser-checks/playwright-test/#global-configuration */
     playwrightConfig: {
-      timeout: 30000,
+      /* The place-order flow (multiple page loads + cart + checkout) takes ~45-50s end to end,
+       * so the default 30s Playwright test timeout isn't enough headroom. */
+      timeout: 60000,
       use: {
-        baseURL: 'https://www.danube-web.shop',
+        /* Reachable only from the "local-demo" private location agent (checkly/agent container),
+         * which resolves the Docker host as host.docker.internal, not from Checkly's cloud locations. */
+        baseURL: 'http://host.docker.internal:8080',
         viewport: { width: 1280, height: 720 },
       },
-    },
-    browserChecks: {
-      /* A glob pattern matches any Playwright .spec.ts files and automagically creates a Browser Check. This way, you
-      * can just write Playwright code. See https://www.checklyhq.com/docs/constructs/including-checks/#browserchecks-testmatch
-      * */
-      testMatch: '**/__checks__/**/*.spec.ts',
     },
   },
   cli: {
