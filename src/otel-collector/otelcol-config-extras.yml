@@ -11,18 +11,22 @@
 # If you want to keep the default observability stack alongside your own exporters,
 # you must explicitly repeat the upstream exporter names in your pipeline definitions.
 #
-# Upstream exporter names (repeat these to keep them active):
-#   traces:  otlp_grpc/jaeger, debug, span_metrics
-#   metrics: otlp_http/prometheus, debug
-#   logs:    opensearch, debug
+# Upstream exporter names depend on which otel-collector command variant is active
+# (see compose.yaml vs. compose.observability.yaml's otel-collector override):
+#   minimal (compose.yaml only)        traces: debug, span_metrics
+#   + compose.observability.yaml       traces: otlp_grpc/jaeger, debug, span_metrics
+# Referencing an exporter that isn't defined in the active variant is a fatal
+# config error at collector startup, not a warning.
 
 exporters:
-  otlphttp/checkly:
-    endpoint: https://otel.eu-west-1.checklyhq.com
+  # Checkly's Hosted OpenTelemetry ingestion only documents a gRPC endpoint
+  # (no working HTTP route was found at otel.eu-west-1.checklyhq.com/v1/traces - 502).
+  otlp/checkly:
+    endpoint: otel.eu-west-1.checklyhq.com:4317
     headers:
       authorization: ${env:CHECKLY_OTEL_API_KEY}
 
 service:
   pipelines:
     traces:
-      exporters: [otlp_grpc/jaeger, debug, span_metrics, otlphttp/checkly]  # repeat upstream exporters
+      exporters: [debug, span_metrics, otlp/checkly]  # repeat upstream exporters (minimal mode)
