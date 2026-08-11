@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 
 test('place order', async ({ page }) => {
   await page.goto('/')
@@ -7,4 +7,6 @@ test('place order', async ({ page }) => {
   await page.getByRole('main').getByRole('combobox').selectOption('2')
   await page.getByRole('button', { name: 'cart Add To Cart' }).click()
   await page.getByRole('button', { name: 'Place Order' }).click()
+
+  await expect(page.getByText('Your order is complete!')).toBeVisible({ timeout: 10000 })
 })
