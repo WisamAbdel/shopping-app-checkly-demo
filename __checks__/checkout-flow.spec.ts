@@ -6,9 +6,10 @@ test('checkout flow', async ({ request }) => {
 
   const product = await test.step('GET /api/products - pick a product', async () => {
     const res = await request.get('/api/products?currencyCode=USD')
-    expect(res.ok()).toBeTruthy()
-    const products = await res.json()
-    expect(products.length).toBeGreaterThan(0)
+    const body = await res.text()
+    expect(res.status(), `GET /api/products -> ${res.status()}: ${body}`).toBe(200)
+    const products = JSON.parse(body)
+    expect(products.length, `expected at least one product, got: ${body}`).toBeGreaterThan(0)
     return products[0]
   })
 
@@ -19,15 +20,17 @@ test('checkout flow', async ({ request }) => {
         item: { productId: product.id, quantity: 1 },
       },
     })
-    expect(res.ok()).toBeTruthy()
+    const body = await res.text()
+    expect(res.status(), `POST /api/cart -> ${res.status()}: ${body}`).toBe(200)
   })
 
   await test.step('GET /api/cart - assert item is present', async () => {
     const res = await request.get(`/api/cart?sessionId=${sessionId}&currencyCode=USD`)
-    expect(res.ok()).toBeTruthy()
-    const cart = await res.json()
+    const body = await res.text()
+    expect(res.status(), `GET /api/cart -> ${res.status()}: ${body}`).toBe(200)
+    const cart = JSON.parse(body)
     const item = cart.items.find((i: { productId: string }) => i.productId === product.id)
-    expect(item).toBeTruthy()
+    expect(item, `product ${product.id} not found in cart: ${body}`).toBeTruthy()
   })
 
   await test.step('POST /api/checkout - place the order', async () => {
@@ -51,9 +54,10 @@ test('checkout flow', async ({ request }) => {
         },
       },
     })
-    expect(res.ok()).toBeTruthy()
-    const order = await res.json()
-    expect(order.orderId).toBeTruthy()
-    expect(order.error).toBeUndefined()
+    const body = await res.text()
+    expect(res.status(), `POST /api/checkout -> ${res.status()}: ${body}`).toBe(200)
+    const order = JSON.parse(body)
+    expect(order.orderId, `no orderId in response: ${body}`).toBeTruthy()
+    expect(order.error, `checkout returned an error: ${body}`).toBeUndefined()
   })
 })
