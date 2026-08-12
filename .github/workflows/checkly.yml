@@ -1,0 +1,60 @@
+# Copyright The OpenTelemetry Authors
+# SPDX-License-Identifier: Apache-2.0
+
+# ---------------------------------------------------------------------------
+# DEMO ONLY - not a functional workflow. Every line below is commented out
+# on purpose; this file exists purely to show what a Checkly CI step could
+# look like, not to actually run one.
+#
+# Why it's disabled: our checks currently run against a private location
+# ("local-demo") backed by a Checkly agent running in local Docker, which a
+# GitHub-hosted runner has no path to reach. Making this real would mean
+# either standing up the app stack + a Checkly agent inside the runner (see
+# run-telemetry-tests.yml for the stack-boot pattern this repo already
+# uses), or pointing checks at a publicly reachable deployment instead.
+# ---------------------------------------------------------------------------
+
+# name: Checkly
+#
+# on:
+#   push:
+#     branches: [main]
+#   pull_request:
+#     branches: [main]
+#   workflow_dispatch:
+#
+# permissions:
+#   contents: read
+#
+# jobs:
+#   checkly:
+#     name: Test and deploy Checkly checks
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+#
+#       - name: Set up Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+#
+#       - name: Install dependencies
+#         run: npm ci
+#
+#       # Runs every check under __checks__/ and reports pass/fail without
+#       # changing anything in the Checkly account.
+#       - name: Run Checkly checks
+#         env:
+#           CHECKLY_API_KEY: ${{ secrets.CHECKLY_API_KEY }}
+#           CHECKLY_ACCOUNT_ID: ${{ secrets.CHECKLY_ACCOUNT_ID }}
+#         run: npx checkly test --reporter github
+#
+#       # Only sync checks to the Checkly account once they've passed, and
+#       # only from main - never from a PR branch.
+#       - name: Deploy Checkly checks
+#         if: github.ref == 'refs/heads/main'
+#         env:
+#           CHECKLY_API_KEY: ${{ secrets.CHECKLY_API_KEY }}
+#           CHECKLY_ACCOUNT_ID: ${{ secrets.CHECKLY_ACCOUNT_ID }}
+#         run: npx checkly deploy --force
