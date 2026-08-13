@@ -13,6 +13,55 @@
 [![OpenSSF Scorecard for opentelemetry-demo](https://api.scorecard.dev/projects/github.com/open-telemetry/opentelemetry-demo/badge)](https://scorecard.dev/viewer/?uri=github.com/open-telemetry/opentelemetry-demo)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9247/badge)](https://www.bestpractices.dev/en/projects/9247)
 
+## About This Fork
+
+This is a fork of the OpenTelemetry Demo used for a Checkly Solutions Engineer
+demo/POC. Everything past this section is the unmodified upstream README,
+describing the app itself - this section covers what's specific to this fork.
+
+### What's here
+
+- `checkly.config.ts` and `__checks__/` define three checks exercising the storefront:
+  - **`place-order`** (Browser check) - full UI flow: browse, add to cart, place an order.
+  - **`get-product`** (API check) - `GET /api/products/{id}` against a known product.
+  - **`checkout-flow`** (Multistep check) - scripted API flow: list products, add to
+    cart, verify the cart, then check out, using a fresh session ID each run.
+- All three run against the **`local-demo` private location** - a `checkly/agent`
+  Docker container running alongside the demo stack - rather than Checkly's cloud
+  regions, since the app only listens on `localhost`. Checks reach it via
+  `host.docker.internal` (see `playwrightConfig.use.baseURL` in `checkly.config.ts`).
+- `.env` holds the private location's agent key (`CHECKLY_PRIVATE_LOCATION_API_KEY`)
+  and Checkly's OTel API key (`CHECKLY_OTEL_API_KEY`); it's fully untracked (not just
+  gitignored) since both are live secrets.
+- `src/otel-collector/otelcol-config-extras.yml` additionally exports traces to
+  Checkly's hosted OpenTelemetry endpoint. This is a work in progress: Checkly's
+  ingestion only accepts spans that originate from an actual check run (marked via
+  `tracestate: checkly=true`), and the collector doesn't yet filter for that, so
+  exports currently succeed but get rejected. See the file's comments for the exact
+  filter processor needed to finish this.
+
+### Demo failure scenarios
+
+A few feature flags in `src/flagd/demo.flagd.json` are wired for this demo and
+toggle live at `/feature/` with no restart needed:
+
+- **`paymentUnreachable`** - checkout can't reach the payment service (a gRPC
+  name-resolution failure against a nonexistent host). Order placement fails
+  end-to-end, so it fails both `place-order` and `checkout-flow`.
+- **`placeOrderUnclickable`** - the "Place Order" button is visually normal but has
+  `pointer-events: none`, so neither a real click nor Playwright's can ever reach it.
+  Fails `place-order` only - `checkout-flow` never touches the browser, so it stays
+  green. A deliberate illustration of the class of bug only a browser check catches.
+- **`productCatalogFailure`** - targeted at product `OLJCESPC7Z` (the one `get-product`
+  checks) - simulates a broken product-catalog lookup for that specific product.
+
+### Running the checks
+
+```sh
+npx checkly test --private-location local-demo   # dry run against the local stack
+npx checkly deploy                                # sync checks to the Checkly account
+```
+
 ## Welcome to the OpenTelemetry Astronomy Shop Demo
 
 This repository contains the OpenTelemetry Astronomy Shop, a microservice-based
