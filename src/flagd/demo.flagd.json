@@ -136,6 +136,15 @@
         "on": true
       }
     },
+    "placeOrderUnclickable": {
+      "defaultVariant": "on",
+      "description": "Place Order button is visually normal but unclickable (pointer-events: none)",
+      "state": "ENABLED",
+      "variants": {
+        "off": false,
+        "on": true
+      }
+    },
     "productCatalogFailure": {
       "defaultVariant": "off",
       "description": "Fail product catalog service on a specific product",
@@ -150,7 +159,7 @@
               "OLJCESPC7Z"
             ]
           },
-          "off",
+          "on",
           "off"
         ]
       },

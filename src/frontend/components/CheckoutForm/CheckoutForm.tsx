@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
+import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { CypressFields } from '../../utils/enums/CypressFields';
 import Input from '../Input';
 import * as S from './CheckoutForm.styled';
@@ -28,6 +29,7 @@ interface IProps {
 }
 
 const CheckoutForm = ({ onSubmit }: IProps) => {
+  const placeOrderUnclickable = useBooleanFlagValue('placeOrderUnclickable', false);
   const [
     {
       email,
@@ -193,7 +195,13 @@ const CheckoutForm = ({ onSubmit }: IProps) => {
         <Link href="/">
           <S.CartButton $type="secondary">Continue Shopping</S.CartButton>
         </Link>
-        <S.CartButton data-cy={CypressFields.CheckoutPlaceOrder} type="submit">Place Order</S.CartButton>
+        <S.CartButton
+          data-cy={CypressFields.CheckoutPlaceOrder}
+          type="submit"
+          style={placeOrderUnclickable ? { pointerEvents: 'none' } : undefined}
+        >
+          Place Order
+        </S.CartButton>
       </S.SubmitContainer>
     </S.CheckoutForm>
   );
