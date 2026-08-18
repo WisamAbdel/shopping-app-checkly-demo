@@ -1,7 +1,7 @@
 # Copyright The OpenTelemetry Authors
 # SPDX-License-Identifier: Apache-2.0
 
-FROM docker.io/library/python:3.14.6-slim-bookworm@sha256:86f975aca15cf04a40b399eebede9aea7c82eae084d1f1a0a6ef6bcaae871a30
+FROM docker.io/library/python:3.15.0b3-slim-bookworm@sha256:e4408792d58d928261ed76a21a28daaf3339111e0f8cefb8f8c70b139ad94c39
 
 WORKDIR /build
 
