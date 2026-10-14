@@ -4,7 +4,7 @@
 # Two-stage build: Generate service-centric Markdown with Weaver, then serve with mkdocs
 
 # Stage 1: Generate Markdown files from telemetry schema using Weaver
-FROM docker.io/otel/weaver:v0.25.1@sha256:9ad46ca9cd4fa5974b121f886aa3e9946a8ef8ea905001a96c018d21f9db87ca AS registry-builder
+FROM docker.io/otel/weaver:v0.27.0@sha256:3049b4079049d4abb1b5632f511ada2c33505a1c60f3f8535e93f87f0696f056 AS registry-builder
 
 WORKDIR /workspace
 
@@ -29,7 +29,7 @@ RUN /weaver/weaver registry package \
     --v2
 
 # Stage 2: Build static site
-FROM docker.io/library/python:3.14.6-slim-bookworm@sha256:86f975aca15cf04a40b399eebede9aea7c82eae084d1f1a0a6ef6bcaae871a30 AS site-builder
+FROM docker.io/library/python:3.14.8-slim-bookworm@sha256:48b13b003dda20b16f9442b8475aa05fe21bf6579a8c881db92ffb4d8fd20f83 AS site-builder
 
 WORKDIR /app
 
